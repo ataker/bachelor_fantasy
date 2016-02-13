@@ -8,10 +8,11 @@ const { syncReduxAndRouter, pushPath } = require('redux-simple-router');
 ///import App from './containers/app';
 import Routes from './routes';
 import { connect, Provider } from 'react-redux';
-
+import { persistStore } from 'redux-persist'
 //require('./styles/style.scss');
 
 const store = configureStore();
+persistStore(store)
 const history = createHistory();
 syncReduxAndRouter(history, store);
 

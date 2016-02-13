@@ -8,11 +8,12 @@ import rootReducer from '../reducers';
 import DevTools from '../containers/DevTools';
 //const { syncReduxAndRouter, routeReducer } = require('redux-simple-router');
 //import persistState from 'redux-localstorage'
+import { autoRehydrate } from 'redux-persist'
 
 
 const createStoreWithMiddleware = compose(
 	applyMiddleware(thunkMiddleware),//, api),
-
+	autoRehydrate(),
 	//applyMiddleware(createLogger()),
 	DevTools.instrument()
   //persistState()
