@@ -100,7 +100,19 @@ const app = (state = {currentContestantIndex:0}, action) =>{
   }
 }
 
-const returnByID = (obj) => {
+export const getContestantTotal = (contestant) => {
+  return contestant.activities.reduce((total, activity) => {
+    return total + (activity.count * activity.points)
+  }, 0)
+}
+
+export const getTotal = (contestants) => {
+  return contestants.reduce((total, contestant) => {
+    return total + getContestantTotal(contestant)
+  }, 0)
+}
+
+const returnByID = function returnByID(obj) {
   return obj.id === this
 }
 
