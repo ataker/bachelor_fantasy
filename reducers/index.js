@@ -2,8 +2,9 @@ import { combineReducers } from 'redux';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 
 import {  
-          INCREMENT, DECREMENT,
-          ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT
+          INCREMENT, DECREMENT
+          ,ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT, LOAD_CONTESTANTS, LOAD_ACTIVITIES
+          ,INIT_SCORING
         } from '../actions/constants';
 
 const activity = (state = {}, action) => {
@@ -97,15 +98,13 @@ const activities = (state = [], action) => {
 const contestant = (state = {}, action) =>{
   switch(action.type){
     case ADD_CONTESTANT:
-      return {
-          name: action.name,
-          id: action.id,
+      return Object.assign({
           score:0,
           activities : activities(undefined, action)
-        }
+        }, action.info)
     case INCREMENT:
     case DECREMENT:
-      if (state.id !== action.currentContestantId) {
+      if (state.contestantID !== action.currentContestantId) {
         return state
       }
       return Object.assign({}, state, { activities : activities(state.activities, action) } )
@@ -122,33 +121,52 @@ const contestants = (state = [], action) =>{
         contestant(undefined, action)
       ]
     case REMOVE_CONTESTANT:
-      return [
-        ...state.slice(0,action.index),
-        ...state.slice(action.index + 1),
-      ]
+      return state.reduce(reject("contestantID", action.id),[])
     case INCREMENT:
     case DECREMENT:
       return state.map(t =>
         contestant(t, action)
       )
-      /*return state.filter(returnByID, action.currentContestantId).map(t =>
-          contestant(t, action)
-        )I see why this isn't how it's done now*/
     default:
       return state;
   }
 }
 
-const app = (state = {currentContestantIndex:0}, action) =>{
+const app = (state = {}, action) =>{
   switch(action.type){
+    case INIT_SCORING:
+    case ADD_CONTESTANT:
+      return Object.assign({}, state, {
+        currentContestantID: action.info.contestantID
+      })
     case CHANGE_CONTESTANT:
       return Object.assign({}, state, {
-        currentContestantIndex: action.index
+        currentContestantID: action.id
       })
     default:
-        return state;
+      return state;
   }
 }
+
+const contestantList = (state = [], action) =>{
+  switch(action.type){
+    case LOAD_CONTESTANTS:
+      return action.contestants
+    default:
+      return state;
+  }
+}
+
+const activityList = (state = [], action) =>{
+  switch(action.type){
+    case LOAD_ACTIVITIES:
+      debugger;
+      return action.activities
+    default:
+      return state;
+  }
+}
+
 
 export const getContestantTotal = (contestant) => {
   if(!contestant)
@@ -164,13 +182,39 @@ export const getTotal = (contestants) => {
   }, 0)
 }
 
-const returnByID = function returnByID(obj) {
-  return obj.id === this
+//@TODO seems like I should be able to pull out the (idName, id) thing
+export const returnByID = function returnByID(idName, id) {
+  return function(obj){
+    return obj[idName] == id
+  }
+}
+
+export const reject = function reject(idName, id) {
+  return function (retVal, obj) {
+    if(obj[idName] !== id){retVal.push(obj)}
+    return retVal;
+  };
+};
+
+export const rejectMultiple = function rejectMultiple(idName, ids){
+  return function (retVal, obj) {
+    if(ids.indexOf(obj[idName]) === -1){retVal.push(obj)}
+    return retVal;
+  };
+}
+
+export const getIDList = function getIDList(idName){
+  return function (retVal, obj) {
+    retVal.push(obj[idName])
+    return retVal;
+  };
 }
 
 const rootReducer = combineReducers({
   routing: routeReducer,
   contestants,
+  contestantList,
+  activityList,
   app
 });
 

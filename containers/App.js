@@ -2,14 +2,14 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { getContestantTotal, getTotal } from "../reducers"
+import { returnByID, getContestantTotal, getTotal } from "../reducers"
 
 import Activity from "../components/activity"
 import * as actions from "../actions/app"
 
 class App extends Component {
   render(){
-    const { contestants, currentContestantIndex, activityActions, currContestantTotal,
+    const { contestants, currentContestant, currentContestantID, activityActions, currContestantTotal,
             total } = this.props;
     if(!contestants[0]){
       return <div></div>
@@ -18,20 +18,20 @@ class App extends Component {
       <div>
         <div>
           {contestants.map((contestant, i) =>{
-            let selected = (currentContestantIndex === i ? {fontWeight:"bold"} : {})
+            let selected = (currentContestantID === contestant.contestantID ? {fontWeight:"bold"} : {})
             return(
-              <div key={i} style={selected} onClick={ e => activityActions.changeContestant(i) } >
+              <div key={i} style={selected} onClick={ e => activityActions.changeContestant(contestant.contestantID) } >
                 {contestant.name}
               </div>
           )})}
         </div>
         
-        {contestants[currentContestantIndex].activities.map(function(activity, i){
+        {currentContestant.activities.map(function(activity, i){
           return(
-          <Activity key={i} activity={activity} onPlus={ id => activityActions.increment(id, currentContestantIndex) }
-            onMinus={ id => activityActions.decrement(id, currentContestantIndex) } />
+          <Activity key={i} activity={activity} onPlus={ id => activityActions.increment(id, currentContestantID) }
+            onMinus={ id => activityActions.decrement(id, currentContestantID) } />
         )})}
-        <div>{contestants[currentContestantIndex].name}s Total: { currContestantTotal }</div>
+        <div>{currentContestant.name}s Total: { currContestantTotal }</div>
         <div>Total: { total }</div>
       </div>
     )
@@ -39,12 +39,14 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  let currContIndex = state.app.currentContestantIndex
+  let currContID = state.app.currentContestantID;
+  let currCont = state.contestants.filter(returnByID("contestantID",currContID))[0];
   return { 
-   contestants:state.contestants,
-   currentContestantIndex: currContIndex,
-   currContestantTotal: getContestantTotal(state.contestants[currContIndex]),
-   total: getTotal(state.contestants)
+    contestants:state.contestants,
+    currentContestant: currCont,
+    currentContestantID: currContID,
+    currContestantTotal: getContestantTotal(currCont),
+    total: getTotal(state.contestants)
   }
 }
 function mapDispatchToProps(dispatch) {

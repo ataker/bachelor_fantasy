@@ -1,8 +1,8 @@
+import fetch from 'isomorphic-fetch'
 import { INCREMENT, DECREMENT,
-		ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT
+		ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT, LOAD_CONTESTANTS, LOAD_ACTIVITIES
  } from './constants';
 
-let nextContestantId = 0;
 
 export function increment(id, currentContestantId){
   return {
@@ -20,24 +20,51 @@ export function decrement(id, currentContestantId){
   };
 }
 
-export function addContestant(name){
+export function addContestant(info){
   return {
     type:ADD_CONTESTANT,
-    name:name,
-    id: nextContestantId++
+    info:info
   };
 }
 
-export function removeContestant(index){
+export function removeContestant(id){
   return {
     type:REMOVE_CONTESTANT,
-    index: index
+    id: id
   };
 }
 
 export function changeContestant(id){
   return {
     type:CHANGE_CONTESTANT,
-    index: id
+    id: id
+  };
+}
+
+export function loadContestants(){
+  return dispatch => {
+    return fetch(`http://localhost:3001/getContestants`)
+      .then(response => response.json())
+      .then(json => dispatch(loadedContestants(json)))
+  }
+}
+function loadedContestants(data) {
+  return {
+    type:LOAD_CONTESTANTS,
+    contestants: data
+  };
+}
+
+export function loadActivities(){
+  return dispatch => {
+    return fetch(`http://localhost:3001/getActivities`)
+      .then(response => response.json())
+      .then(json => dispatch(loadedActivities(json)))
+  }
+}
+function loadedActivities(data) {
+  return {
+    type:LOAD_ACTIVITIES,
+    activities: data
   };
 }
