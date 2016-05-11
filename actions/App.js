@@ -20,17 +20,17 @@ export function decrement(id, currentContestantId){
   };
 }
 
-export function addContestant(info){
+export function addContestant(id){
   return {
     type:ADD_CONTESTANT,
-    info:info
+    id:id
   };
 }
 
-export function removeContestant(id){
+export function removeContestant(index){
   return {
     type:REMOVE_CONTESTANT,
-    id: id
+    index: index
   };
 }
 

@@ -2,43 +2,48 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { returnByID, rejectMultiple, getIDList } from "../reducers";
+import { returnById, rejectMultiple, getIdList } from "../reducers";
 
 import * as actions from "../actions/app"
 
 class AddContestants extends Component {
   componentDidMount() {
-      this.props.activityActions.loadContestants();
-      this.props.activityActions.loadActivities();
+      this.props.activityActions.loadContestants()
+      this.props.activityActions.loadActivities()
   }
   render(){
-    const { activityActions, contestants, contestantList } = this.props;
-    let addedContestantIDs = contestants.reduce(getIDList("contestantID"),[]);
+    const { activityActions, contestantList, roster } = this.props
+    
     return (
       <div className="container-fluid">
         {/*<button onClick={ e => activityActions.loadContestants() }>TEST</button>*/}
+
+
         <div className="row col-xs-6">
           <div>Add Contestant:</div>
-          
-          {contestantList.reduce(rejectMultiple("contestantID",addedContestantIDs),[]).map(function(contestant, i){
+          {Object.keys(contestantList).diff(roster).map(function(contestantId, i){
+            let contestant = contestantList[contestantId]
             return(
               <div key={i} onClick={ e => {
-                activityActions.addContestant(contestantList.filter(returnByID("contestantID",contestant.contestantID))[0])
+                activityActions.addContestant(contestantId)
                 } }>{contestant.name}
                 <button>+</button>
               </div>
           )})}
         </div>
+
+
         <div className="row col-xs-6">
           <div>Current Team:</div>
-          {contestants.map(function(contestant, i){
-          return (
-            <div onClick={ e => activityActions.removeContestant(contestant.contestantID) } key={i}>
-              {contestant.name}
-              <button>-</button>
-            </div>
-          )})}
-          {contestants.length > 0 ? <Link to='/home'>Go</Link> : null}
+          {roster.map(function(contestantId, i){
+            let name = contestantList[contestantId].name
+            return (
+              <div onClick={ e => activityActions.removeContestant(i) } key={i}>
+                {name}
+                <button>-</button>
+              </div>
+            )})}
+          {roster.length > 0 ? <Link to='/home'>Go</Link> : null}
         </div>
       </div>
     )
@@ -47,7 +52,8 @@ class AddContestants extends Component {
 
 function mapStateToProps(state) {
   return { 
-   contestants : state.contestants,
+   //contestants : state.contestants,
+   roster : state.roster,
    contestantList : state.contestantList
   }
 }
@@ -57,5 +63,8 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddContestants)

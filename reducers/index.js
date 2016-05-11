@@ -4,13 +4,12 @@ import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 import {  
           INCREMENT, DECREMENT
           ,ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT, LOAD_CONTESTANTS, LOAD_ACTIVITIES
-          ,INIT_SCORING
         } from '../actions/constants';
 
-const activity = (state = {}, action) => {
-  if (state.id !== action.id) {
+const activity = (state = { count : 0 }, action) => {
+  /*if (state.id !== action.id) {
     return state
-  }
+  }*/
   switch (action.type) {
     case INCREMENT:
       return Object.assign({}, state, {
@@ -76,20 +75,18 @@ const initialActivitiesState = [
   { name:"Get sent home at Rose Ceremony", points:-10 }
 ];
 
-const activities = (state = [], action) => {
+const activities = (state = {}, action) => {
   switch(action.type){
-    case ADD_CONTESTANT:
+    /*case ADD_CONTESTANT:
       return initialActivitiesState.map( (activity, i ) =>{
         activity.count = 0;
         activity.id = i;
         return activity;
-      })
+      })*/
 
     case INCREMENT:
     case DECREMENT:
-      return state.map(t =>
-        activity(t, action)
-      )
+      return Object.assign({}, state, { [action.id] : activity( state[action.id] , action)})
     default:
       return state;
   }
@@ -100,11 +97,11 @@ const contestant = (state = {}, action) =>{
     case ADD_CONTESTANT:
       return Object.assign({
           score:0,
-          activities : activities(undefined, action)
+          activities : {}
         }, action.info)
     case INCREMENT:
     case DECREMENT:
-      if (state.contestantID !== action.currentContestantId) {
+      if (state.contestantId !== action.currentContestantId) {
         return state
       }
       return Object.assign({}, state, { activities : activities(state.activities, action) } )
@@ -121,7 +118,7 @@ const contestants = (state = [], action) =>{
         contestant(undefined, action)
       ]
     case REMOVE_CONTESTANT:
-      return state.reduce(reject("contestantID", action.id),[])
+      return state.reduce(reject("contestantId", action.id),[])
     case INCREMENT:
     case DECREMENT:
       return state.map(t =>
@@ -131,27 +128,46 @@ const contestants = (state = [], action) =>{
       return state;
   }
 }
+//array of contestantIds
+const roster = (state = [], action) =>{
+  switch(action.type){
+    case ADD_CONTESTANT:
+      return [
+        ...state,
+        action.id
+      ]
+    case REMOVE_CONTESTANT:
+      return [
+        ...state.slice(0, action.index),
+        ...state.slice(action.index + 1)
+      ]
+    default:
+      return state;
+  }
+}
 
 const app = (state = {}, action) =>{
   switch(action.type){
-    case INIT_SCORING:
-    case ADD_CONTESTANT:
+    /*case ADD_CONTESTANT:
       return Object.assign({}, state, {
-        currentContestantID: action.info.contestantID
-      })
+        currentContestantId: action.info.contestantId
+      })*/
     case CHANGE_CONTESTANT:
       return Object.assign({}, state, {
-        currentContestantID: action.id
+        currentContestantId: action.id
       })
     default:
       return state;
   }
 }
 
-const contestantList = (state = [], action) =>{
+const contestantList = (state = {}, action) =>{
   switch(action.type){
     case LOAD_CONTESTANTS:
-      return action.contestants
+      return action.contestants.reduce( (list, contestant) =>{
+        list[contestant.contestantId] = contestant
+        return list
+      }, {} )
     default:
       return state;
   }
@@ -160,7 +176,6 @@ const contestantList = (state = [], action) =>{
 const activityList = (state = [], action) =>{
   switch(action.type){
     case LOAD_ACTIVITIES:
-      debugger;
       return action.activities
     default:
       return state;
@@ -169,6 +184,8 @@ const activityList = (state = [], action) =>{
 
 
 export const getContestantTotal = (contestant) => {
+  //@TODO
+  return 0;
   if(!contestant)
     return 0;
   return contestant.activities.reduce((total, activity) => {
@@ -183,7 +200,7 @@ export const getTotal = (contestants) => {
 }
 
 //@TODO seems like I should be able to pull out the (idName, id) thing
-export const returnByID = function returnByID(idName, id) {
+export const returnById = function returnById(idName, id) {
   return function(obj){
     return obj[idName] == id
   }
@@ -203,7 +220,7 @@ export const rejectMultiple = function rejectMultiple(idName, ids){
   };
 }
 
-export const getIDList = function getIDList(idName){
+export const getIdList = function getIdList(idName){
   return function (retVal, obj) {
     retVal.push(obj[idName])
     return retVal;
@@ -212,8 +229,9 @@ export const getIDList = function getIDList(idName){
 
 const rootReducer = combineReducers({
   routing: routeReducer,
-  contestants,
+  //contestants,
   contestantList,
+  roster,
   activityList,
   app
 });

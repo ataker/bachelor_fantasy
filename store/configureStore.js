@@ -1,6 +1,6 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-//import createLogger from 'redux-logger';
+import createLogger from 'redux-logger';
 //import createHistory from 'history/lib/createBrowserHistory';
 //import routes from '../routes';
 //import api from '../middleware/api';
@@ -14,7 +14,7 @@ import { autoRehydrate } from 'redux-persist'
 const createStoreWithMiddleware = compose(
 	applyMiddleware(thunkMiddleware),//, api),
 	autoRehydrate(),
-	//applyMiddleware(createLogger()),
+	applyMiddleware(createLogger()),
 	DevTools.instrument()
   //persistState()
 )(createStore);
