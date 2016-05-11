@@ -148,10 +148,10 @@ const roster = (state = [], action) =>{
 
 const app = (state = {}, action) =>{
   switch(action.type){
-    /*case ADD_CONTESTANT:
+    case ADD_CONTESTANT:
       return Object.assign({}, state, {
-        currentContestantId: action.info.contestantId
-      })*/
+        currentContestantId: action.id
+      })
     case CHANGE_CONTESTANT:
       return Object.assign({}, state, {
         currentContestantId: action.id
@@ -194,6 +194,8 @@ export const getContestantTotal = (contestant) => {
 }
 
 export const getTotal = (contestants) => {
+  //@TODO
+  return 0;
   return contestants.reduce((total, contestant) => {
     return total + getContestantTotal(contestant)
   }, 0)
