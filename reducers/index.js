@@ -6,24 +6,37 @@ import {
           ,ADD_CONTESTANT, REMOVE_CONTESTANT, CHANGE_CONTESTANT, LOAD_CONTESTANTS, LOAD_ACTIVITIES
         } from '../actions/constants';
 
-const activity = (state = { count : 0 }, action) => {
-  /*if (state.id !== action.id) {
-    return state
-  }*/
+const counter = (state = 0 , action) => {
   switch (action.type) {
     case INCREMENT:
-      return Object.assign({}, state, {
-        count: state.count + 1
-      })
+      return state + 1
     case DECREMENT:
       if(state.count === 0){
         return state;
       }
-      return Object.assign({}, state, {
-        count: state.count - 1
-      })
+      return state - 1
     default:
       return state
+  }
+}
+
+const activities = (state = [], action) => {
+  switch(action.type){
+    /*case ADD_CONTESTANT:
+      return initialActivitiesState.map( (activity, i ) =>{
+        activity.count = 0;
+        activity.id = i;
+        return activity;
+      })*/
+
+    case INCREMENT:
+    case DECREMENT:
+      let id = `${action.contestantId}_${action.activityId}`
+      
+      //state[id] = activity(state[id], action.type)
+      return Object.assign({}, state, { [id] : counter( state[id] , action)})
+    default:
+      return state;
   }
 }
 
@@ -75,23 +88,6 @@ const initialActivitiesState = [
   { name:"Get sent home at Rose Ceremony", points:-10 }
 ];
 
-const activities = (state = {}, action) => {
-  switch(action.type){
-    /*case ADD_CONTESTANT:
-      return initialActivitiesState.map( (activity, i ) =>{
-        activity.count = 0;
-        activity.id = i;
-        return activity;
-      })*/
-
-    case INCREMENT:
-    case DECREMENT:
-      return Object.assign({}, state, { [action.id] : activity( state[action.id] , action)})
-    default:
-      return state;
-  }
-}
-
 const contestant = (state = {}, action) =>{
   switch(action.type){
     case ADD_CONTESTANT:
@@ -110,24 +106,6 @@ const contestant = (state = {}, action) =>{
   }
 }
 
-const contestants = (state = [], action) =>{
-  switch(action.type){
-    case ADD_CONTESTANT:
-      return [
-        ...state,
-        contestant(undefined, action)
-      ]
-    case REMOVE_CONTESTANT:
-      return state.reduce(reject("contestantId", action.id),[])
-    case INCREMENT:
-    case DECREMENT:
-      return state.map(t =>
-        contestant(t, action)
-      )
-    default:
-      return state;
-  }
-}
 //array of contestantIds
 const roster = (state = [], action) =>{
   switch(action.type){
@@ -173,10 +151,14 @@ const contestantList = (state = {}, action) =>{
   }
 }
 
-const activityList = (state = [], action) =>{
+const activityList = (state = {}, action) =>{
   switch(action.type){
     case LOAD_ACTIVITIES:
-      return action.activities
+      return action.activities.reduce( (list, activity) =>{
+        list[activity.activityId] = activity
+        return list
+      }, {} )
+      //return action.activities
     default:
       return state;
   }
@@ -231,7 +213,7 @@ export const getIdList = function getIdList(idName){
 
 const rootReducer = combineReducers({
   routing: routeReducer,
-  //contestants,
+  activities,
   contestantList,
   roster,
   activityList,

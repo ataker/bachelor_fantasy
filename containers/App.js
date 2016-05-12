@@ -10,7 +10,7 @@ import * as actions from "../actions/app"
 class App extends Component {
   render(){
     const { contestantList, roster, currentContestant, currentContestantId, activityActions, currContestantTotal, activityList,
-            total } = this.props;
+            total, activities } = this.props;
     if(!currentContestantId)
       return <div></div>
 
@@ -27,12 +27,13 @@ class App extends Component {
           )})}
         </div>
         
-        {/*activityList.map(function(activity, i){
-          let activityCount = (currentContestant.activities[activity.activityId] ? currentContestant.activities[activity.activityId].count : 0 )
+        {Object.keys(activityList).map(function(activityId, i){
+          let activity = activityList[activityId]
+          let activityCount = ( activities[`${currentContestantId}_${activity.activityId}`] ? activities[`${currentContestantId}_${activity.activityId}`] : 0 )
           return(
-          <Activity key={i} activity={activity} activityCount={activityCount} onPlus={ id => activityActions.increment(id, currentContestantId) }
-            onMinus={ id => activityActions.decrement(id, currentContestantId) } />
-        )})*/}
+            <Activity key={i} activity={activity} activityCount={activityCount} onPlus={ id => activityActions.increment(id, currentContestantId) }
+              onMinus={ id => activityActions.decrement(id, currentContestantId) } />
+          )})}
         <div>{currentContestant.name}s Total: { currContestantTotal }</div>
         <div>Total: { total }</div>
         <p>Initials:<input name="initials" /></p>
@@ -46,12 +47,11 @@ class App extends Component {
 function mapStateToProps(state) {
   let currContId = state.app.currentContestantId;
   let currCont = state.contestantList[currContId]
-  console.log(currContId)
-  console.log(currCont)
   return { 
     contestantList : state.contestantList,
     roster:state.roster,
     activityList:state.activityList,
+    activities:state.activities,
     currentContestant: currCont,
     currentContestantId: currContId,
     currContestantTotal: getContestantTotal(currCont),

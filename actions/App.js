@@ -4,19 +4,19 @@ import { INCREMENT, DECREMENT,
  } from './constants';
 
 
-export function increment(id, currentContestantId){
+export function increment(activityId, contestantId){
   return {
     type:INCREMENT,
-    id:id,
-    currentContestantId:currentContestantId
+    activityId:activityId,
+    contestantId:contestantId
   };
 }
 
-export function decrement(id, currentContestantId){
+export function decrement(activityId, contestantId){
   return {
     type:DECREMENT,
-    id:id,
-    currentContestantId:currentContestantId
+    activityId:activityId,
+    contestantId:contestantId
   };
 }
 
