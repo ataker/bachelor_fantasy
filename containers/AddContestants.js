@@ -35,8 +35,8 @@ class AddContestants extends Component {
 
         <div className="row col-xs-6">
           <div>Current Team:</div>
-          {roster.map(function(contestantId, i){
-            let name = contestantList[contestantId].name
+          {roster.map(function(contestant, i){
+            let name = contestantList[contestant].name
             return (
               <div onClick={ e => activityActions.removeContestant(i) } key={i}>
                 {name}

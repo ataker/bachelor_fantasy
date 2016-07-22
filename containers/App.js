@@ -17,11 +17,11 @@ class App extends Component {
     return (
       <div>
         <div>
-          {roster.map((contestantId, i) =>{
-            let contestant = contestantList[contestantId]
-            let selected = (currentContestantId === contestantId ? {fontWeight:"bold"} : {})
+          {roster.map((id, i) =>{
+            let contestant = contestantList[id]
+            let selected = (currentContestantId === id ? {fontWeight:"bold"} : {})
             return(
-              <div key={i} style={selected} onClick={ e => activityActions.changeContestant(contestantId) } >
+              <div key={i} style={selected} onClick={ e => activityActions.changeContestant(id) } >
                 {contestant.name}
               </div>
           )})}
@@ -29,7 +29,7 @@ class App extends Component {
         
         {Object.keys(activityList).map(function(activityId, i){
           let activity = activityList[activityId]
-          let activityCount = ( activities[`${currentContestantId}_${activity.activityId}`] ? activities[`${currentContestantId}_${activity.activityId}`] : 0 )
+          let activityCount =  currentContestant.activities[activityId] || 0 
           return(
             <Activity key={i} activity={activity} activityCount={activityCount} onPlus={ id => activityActions.increment(id, currentContestantId) }
               onMinus={ id => activityActions.decrement(id, currentContestantId) } />
