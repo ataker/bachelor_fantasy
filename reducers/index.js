@@ -68,7 +68,7 @@ const contestantList = (state = {}, action) =>{
   switch(action.type){
     case LOAD_CONTESTANTS:
       return action.contestants.reduce( (list, contestant) =>{
-        list[contestant.contestantId] = contestant
+        list[contestant.contestantId] = Object.assign({}, contestant, {activities:{}})
         return list
       }, {} )
     case INCREMENT:
